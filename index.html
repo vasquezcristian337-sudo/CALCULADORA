@@ -12,45 +12,139 @@ content="width=device-width, initial-scale=1.0">
 
 <style>
 
+* {
+    box-sizing: border-box;
+}
+
 body {
+
     font-family: Arial, sans-serif;
+
     text-align: center;
+
     background: #eeeeee;
-    padding-top: 40px;
+
+    margin: 0;
+
+    padding: 30px 15px;
+
 }
 
 h1 {
+
     font-size: 32px;
+
+    margin-bottom: 30px;
+
 }
 
 button {
+
     font-size: 25px;
-    padding: 15px 30px;
+
+    padding: 18px 35px;
+
     border: none;
-    border-radius: 10px;
+
+    border-radius: 12px;
+
     background: #222;
+
     color: white;
+
     cursor: pointer;
+
 }
 
-button:hover {
-    background: #444;
+button:active {
+
+    transform: scale(0.96);
+
 }
 
 #texto {
-    font-size: 24px;
+
+    font-size: 22px;
+
     margin-top: 30px;
+
+    word-wrap: break-word;
+
+}
+
+#expresion {
+
+    font-size: 30px;
+
+    font-weight: bold;
+
+    margin-top: 20px;
+
 }
 
 #resultado {
-    font-size: 50px;
+
+    font-size: 55px;
+
     font-weight: bold;
-    margin-top: 20px;
+
+    margin-top: 15px;
+
+    word-wrap: break-word;
+
 }
 
 #estado {
+
     font-size: 18px;
-    margin-top: 20px;
+
+    margin-top: 25px;
+
+}
+
+
+@media (max-width: 600px) {
+
+    body {
+
+        padding-top: 25px;
+
+    }
+
+    h1 {
+
+        font-size: 27px;
+
+    }
+
+    button {
+
+        width: 90%;
+
+        max-width: 350px;
+
+        font-size: 23px;
+
+    }
+
+    #texto {
+
+        font-size: 19px;
+
+    }
+
+    #expresion {
+
+        font-size: 24px;
+
+    }
+
+    #resultado {
+
+        font-size: 45px;
+
+    }
+
 }
 
 </style>
@@ -60,23 +154,42 @@ button:hover {
 
 <body>
 
+
 <h1>🎤 Calculadora por Voz</h1>
 
+
 <button id="boton">
+
 🎤 HABLAR
+
 </button>
 
+
 <div id="texto">
+
 Pulsa el botón y habla
+
 </div>
+
+
+<div id="expresion">
+
+</div>
+
 
 <div id="resultado">
+
 -
+
 </div>
 
+
 <div id="estado">
+
 📡 ESP32: conectado
+
 </div>
+
 
 
 <script>
@@ -99,6 +212,9 @@ document.getElementById("boton");
 const textoPantalla =
 document.getElementById("texto");
 
+const expresionPantalla =
+document.getElementById("expresion");
+
 const resultadoPantalla =
 document.getElementById("resultado");
 
@@ -118,25 +234,25 @@ window.webkitSpeechRecognition;
 if (!SpeechRecognition) {
 
     textoPantalla.innerText =
-    "❌ Este navegador no soporta reconocimiento de voz.";
+        "❌ Tu navegador no soporta reconocimiento de voz.";
 
 } else {
 
 
     const reconocimiento =
-    new SpeechRecognition();
+        new SpeechRecognition();
 
 
     reconocimiento.lang =
-    "es-CO";
+        "es-CO";
 
 
     reconocimiento.continuous =
-    false;
+        false;
 
 
     reconocimiento.interimResults =
-    false;
+        false;
 
 
     // ==================================================
@@ -146,20 +262,25 @@ if (!SpeechRecognition) {
     boton.onclick = function() {
 
         textoPantalla.innerText =
-        "🎤 ESCUCHANDO...";
+            "🎤 ESCUCHANDO...";
+
+        expresionPantalla.innerText =
+            "";
 
         resultadoPantalla.innerText =
-        "...";
+            "...";
 
         estado.innerText =
-        "🎤 Escuchando...";
+            "🎤 Escuchando...";
 
 
         try {
 
             reconocimiento.start();
 
-        } catch(error) {
+        }
+
+        catch(error) {
 
             console.log(error);
 
@@ -169,7 +290,7 @@ if (!SpeechRecognition) {
 
 
     // ==================================================
-    // VOZ RECONOCIDA
+    // RESULTADO DE VOZ
     // ==================================================
 
     reconocimiento.onresult =
@@ -177,29 +298,17 @@ if (!SpeechRecognition) {
 
 
         const texto =
-        event.results[0][0].transcript;
+            event.results[0][0].transcript;
 
 
         console.log(
-        "================================"
-        );
-
-
-        console.log(
-        "VOZ RECONOCIDA:"
-        );
-
-
-        console.log(texto);
-
-
-        console.log(
-        "================================"
+            "VOZ RECONOCIDA:",
+            texto
         );
 
 
         textoPantalla.innerText =
-        "Escuché: " + texto;
+            "Escuché: " + texto;
 
 
         calcular(texto);
@@ -214,22 +323,23 @@ if (!SpeechRecognition) {
     reconocimiento.onerror =
     function(event) {
 
+
         console.log(
-        "ERROR:",
-        event.error
+            "ERROR:",
+            event.error
         );
 
 
         textoPantalla.innerText =
-        "Error: " + event.error;
+            "Error: " + event.error;
 
 
         resultadoPantalla.innerText =
-        "❌";
+            "❌";
 
 
         estado.innerText =
-        "❌ Error de reconocimiento";
+            "❌ Error de reconocimiento";
 
     };
 
@@ -237,426 +347,519 @@ if (!SpeechRecognition) {
 
 
 // ==================================================
-// CALCULADORA
+// CONVERTIR NUMEROS EN ESPAÑOL
+// ==================================================
+
+const unidades = {
+
+    "cero": 0,
+
+    "uno": 1,
+
+    "una": 1,
+
+    "dos": 2,
+
+    "tres": 3,
+
+    "cuatro": 4,
+
+    "cinco": 5,
+
+    "seis": 6,
+
+    "siete": 7,
+
+    "ocho": 8,
+
+    "nueve": 9
+
+};
+
+
+const especiales = {
+
+    "diez": 10,
+
+    "once": 11,
+
+    "doce": 12,
+
+    "trece": 13,
+
+    "catorce": 14,
+
+    "quince": 15,
+
+    "dieciseis": 16,
+
+    "diecisiete": 17,
+
+    "dieciocho": 18,
+
+    "diecinueve": 19,
+
+    "veinte": 20
+
+};
+
+
+const decenas = {
+
+    "treinta": 30,
+
+    "cuarenta": 40,
+
+    "cincuenta": 50,
+
+    "sesenta": 60,
+
+    "setenta": 70,
+
+    "ochenta": 80,
+
+    "noventa": 90
+
+};
+
+
+function numeroPalabra(palabra) {
+
+
+    palabra =
+        palabra
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
+
+
+    if (
+        unidades[palabra] !== undefined
+    ) {
+
+        return unidades[palabra];
+
+    }
+
+
+    if (
+        especiales[palabra] !== undefined
+    ) {
+
+        return especiales[palabra];
+
+    }
+
+
+    if (
+        decenas[palabra] !== undefined
+    ) {
+
+        return decenas[palabra];
+
+    }
+
+
+    return null;
+
+}
+
+
+// ==================================================
+// CONVERTIR TEXTO A EXPRESION
+// ==================================================
+
+function convertirExpresion(texto) {
+
+
+    let t =
+        texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
+
+
+    // ----------------------------------------------
+    // OPERACIONES
+    // ----------------------------------------------
+
+    t = t.replace(
+        /\b(dividido entre|dividida entre|dividido|dividida|dividir|divido|entre)\b/g,
+        " / "
+    );
+
+
+    t = t.replace(
+        /\b(multiplicado por|multiplicada por|multiplicado|multiplicada|multiplicar|por)\b/g,
+        " * "
+    );
+
+
+    t = t.replace(
+        /\b(mas|suma|sumar)\b/g,
+        " + "
+    );
+
+
+    t = t.replace(
+        /\b(menos|resta|restar)\b/g,
+        " - "
+    );
+
+
+    // ----------------------------------------------
+    // NUMEROS DE 0 A 20
+    // ----------------------------------------------
+
+    for (
+        const palabra in unidades
+    ) {
+
+        const valor =
+            unidades[palabra];
+
+
+        const regex =
+            new RegExp(
+                "\\b" +
+                palabra +
+                "\\b",
+                "g"
+            );
+
+
+        t =
+            t.replace(
+                regex,
+                " " + valor + " "
+            );
+
+    }
+
+
+    for (
+        const palabra in especiales
+    ) {
+
+        const valor =
+            especiales[palabra];
+
+
+        const regex =
+            new RegExp(
+                "\\b" +
+                palabra +
+                "\\b",
+                "g"
+            );
+
+
+        t =
+            t.replace(
+                regex,
+                " " + valor + " "
+            );
+
+    }
+
+
+    // ----------------------------------------------
+    // DECENAS
+    // ----------------------------------------------
+
+    for (
+        const palabra in decenas
+    ) {
+
+        const valor =
+            decenas[palabra];
+
+
+        const regex =
+            new RegExp(
+                "\\b" +
+                palabra +
+                "\\b",
+                "g"
+            );
+
+
+        t =
+            t.replace(
+                regex,
+                " " + valor + " "
+            );
+
+    }
+
+
+    // ----------------------------------------------
+    // LIMPIAR PALABRAS
+    // ----------------------------------------------
+
+    t =
+        t.replace(
+            /[^0-9+\-*/().]/g,
+            " "
+        );
+
+
+    // ----------------------------------------------
+    // LIMPIAR ESPACIOS
+    // ----------------------------------------------
+
+    t =
+        t.replace(
+            /\s+/g,
+            " "
+        )
+        .trim();
+
+
+    return t;
+
+}
+
+
+// ==================================================
+// VALIDAR EXPRESION
+// ==================================================
+
+function expresionValida(expresion) {
+
+
+    if (
+        !expresion
+    ) {
+
+        return false;
+
+    }
+
+
+    // Solo permitimos:
+    // numeros
+    // + - * /
+    // parentesis
+    // puntos
+
+    return /^[0-9+\-*/().\s]+$/.test(
+        expresion
+    );
+
+}
+
+
+// ==================================================
+// CALCULAR RESPETANDO JERARQUIA
+// ==================================================
+
+function calcularExpresion(expresion) {
+
+
+    if (
+        !expresionValida(expresion)
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+
+        // ------------------------------------------
+        // EVALUAR EXPRESION
+        // ------------------------------------------
+
+        const resultado =
+            Function(
+                '"use strict"; return (' +
+                expresion +
+                ')'
+            )();
+
+
+        // ------------------------------------------
+        // COMPROBAR RESULTADO
+        // ------------------------------------------
+
+        if (
+            typeof resultado !== "number" ||
+            !Number.isFinite(resultado)
+        ) {
+
+            return null;
+
+        }
+
+
+        return resultado;
+
+    }
+
+    catch(error) {
+
+        console.log(
+            "Error matematico:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+// ==================================================
+// CALCULAR
 // ==================================================
 
 function calcular(texto) {
 
 
-    // ==================================================
-    // NORMALIZAR
-    // ==================================================
-
-    texto =
-    texto.toLowerCase().trim();
-
-
-    const normalizado =
-    texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-
-
     console.log(
-    "TEXTO NORMALIZADO:"
+        "================================="
     );
 
 
     console.log(
-    normalizado
+        "TEXTO:",
+        texto
     );
 
 
+    // ----------------------------------------------
+    // CREAR EXPRESION
+    // ----------------------------------------------
 
-    // ==================================================
-    // DETECTAR OPERACION
-    // ==================================================
-
-    let operacion = null;
+    const expresion =
+        convertirExpresion(texto);
 
 
-    // ==================================================
-    // DIVISION
-    // ==================================================
+    console.log(
+        "EXPRESION:",
+        expresion
+    );
+
+
+    expresionPantalla.innerText =
+        expresion;
+
+
+    // ----------------------------------------------
+    // VALIDAR
+    // ----------------------------------------------
 
     if (
-        /divid|entre|division|repart/.test(normalizado) ||
-        normalizado.includes("/")
-    ) {
-
-        operacion = "/";
-
-        console.log(
-        ">>> DIVISION DETECTADA <<<"
-        );
-
-    }
-
-
-    // ==================================================
-    // SUMA
-    // ==================================================
-
-    else if (
-        /mas|suma|sumar/.test(normalizado) ||
-        normalizado.includes("+")
-    ) {
-
-        operacion = "+";
-
-        console.log(
-        ">>> SUMA DETECTADA <<<"
-        );
-
-    }
-
-
-    // ==================================================
-    // RESTA
-    // ==================================================
-
-    else if (
-        /menos|resta|restar/.test(normalizado) ||
-        normalizado.includes("-")
-    ) {
-
-        operacion = "-";
-
-        console.log(
-        ">>> RESTA DETECTADA <<<"
-        );
-
-    }
-
-
-    // ==================================================
-    // MULTIPLICACION
-    // ==================================================
-
-    else if (
-        /por|multiplic/.test(normalizado) ||
-        normalizado.includes("*")
-    ) {
-
-        operacion = "*";
-
-        console.log(
-        ">>> MULTIPLICACION DETECTADA <<<"
-        );
-
-    }
-
-
-    console.log(
-    "OPERACION FINAL:",
-    operacion
-    );
-
-
-
-    // ==================================================
-    // NUMEROS
-    // ==================================================
-
-    const numeros = {
-
-        "cero": 0,
-
-        "uno": 1,
-        "una": 1,
-
-        "dos": 2,
-
-        "tres": 3,
-
-        "cuatro": 4,
-
-        "cinco": 5,
-
-        "seis": 6,
-
-        "siete": 7,
-
-        "ocho": 8,
-
-        "nueve": 9,
-
-        "diez": 10,
-
-        "once": 11,
-
-        "doce": 12,
-
-        "trece": 13,
-
-        "catorce": 14,
-
-        "quince": 15,
-
-        "dieciseis": 16,
-
-        "diecisiete": 17,
-
-        "dieciocho": 18,
-
-        "diecinueve": 19,
-
-        "veinte": 20,
-
-        "treinta": 30,
-
-        "cuarenta": 40,
-
-        "cincuenta": 50,
-
-        "sesenta": 60,
-
-        "setenta": 70,
-
-        "ochenta": 80,
-
-        "noventa": 90,
-
-        "cien": 100,
-
-        "ciento": 100
-
-    };
-
-
-    let encontrados = [];
-
-
-    // ==================================================
-    // BUSCAR NUMEROS ESCRITOS
-    // ==================================================
-
-    for (
-        const palabra in numeros
-    ) {
-
-        const regex =
-        new RegExp(
-            "\\b" +
-            palabra +
-            "\\b",
-            "gi"
-        );
-
-
-        const coincidencias =
-        normalizado.match(regex);
-
-
-        if (coincidencias) {
-
-            for (
-                let i = 0;
-                i < coincidencias.length;
-                i++
-            ) {
-
-                encontrados.push(
-                numeros[palabra]
-                );
-
-            }
-
-        }
-
-    }
-
-
-    // ==================================================
-    // BUSCAR NUMEROS DIGITALES
-    // ==================================================
-
-    const digitales =
-    normalizado.match(
-        /\d+(?:[.,]\d+)?/g
-    );
-
-
-    if (digitales) {
-
-        digitales.forEach(
-        numero => {
-
-            encontrados.push(
-                Number(
-                    numero.replace(",", ".")
-                )
-            );
-
-        });
-
-    }
-
-
-    console.log(
-    "NUMEROS:",
-    encontrados
-    );
-
-
-
-    // ==================================================
-    // NO HAY NUMEROS
-    // ==================================================
-
-    if (
-        encontrados.length === 0
+        !expresion
     ) {
 
         resultadoPantalla.innerText =
-        "❌ No entendí";
+            "❌";
 
         estado.innerText =
-        "❌ No encontré números";
+            "❌ No entendí la operación";
 
         return;
 
     }
 
 
-
-    // ==================================================
-    // FALTA OPERACION
-    // ==================================================
+    // ----------------------------------------------
+    // COMPROBAR SI HAY OPERACION
+    // ----------------------------------------------
 
     if (
-        operacion === null
+        !/[+\-*/]/.test(expresion)
     ) {
 
         resultadoPantalla.innerText =
-        "❌ Falta operación";
+            "❌ Falta operación";
 
         estado.innerText =
-        "❌ No detecté la operación";
-
-        console.log(
-        "!!! NO SE DETECTO OPERACION !!!"
-        );
+            "❌ No detecté la operación";
 
         return;
 
     }
 
 
+    // ----------------------------------------------
+    // DIVISION ENTRE CERO
+    // ----------------------------------------------
 
-    // ==================================================
+    const divisiones =
+        expresion.match(
+            /\/\s*0(?:\D|$)/g
+        );
+
+
+    if (
+        divisiones
+    ) {
+
+        resultadoPantalla.innerText =
+            "❌ No se puede ÷ 0";
+
+        estado.innerText =
+            "❌ División entre cero";
+
+        return;
+
+    }
+
+
+    // ----------------------------------------------
     // CALCULAR
-    // ==================================================
+    // ----------------------------------------------
 
-    let resultado =
-    encontrados[0];
+    const resultado =
+        calcularExpresion(
+            expresion
+        );
 
 
-    for (
-        let i = 1;
-        i < encontrados.length;
-        i++
+    if (
+        resultado === null
     ) {
 
-
-        const numero =
-        encontrados[i];
-
-
-        // ==============================================
-        // SUMA
-        // ==============================================
-
-        if (
-            operacion === "+"
-        ) {
-
-            resultado += numero;
-
-        }
+        resultadoPantalla.innerText =
+            "❌ Error";
 
 
-        // ==============================================
-        // RESTA
-        // ==============================================
+        estado.innerText =
+            "❌ No pude calcular";
 
-        else if (
-            operacion === "-"
-        ) {
-
-            resultado -= numero;
-
-        }
-
-
-        // ==============================================
-        // MULTIPLICACION
-        // ==============================================
-
-        else if (
-            operacion === "*"
-        ) {
-
-            resultado *= numero;
-
-        }
-
-
-        // ==============================================
-        // DIVISION
-        // ==============================================
-
-        else if (
-            operacion === "/"
-        ) {
-
-
-            if (
-                numero === 0
-            ) {
-
-                resultadoPantalla.innerText =
-                "❌ No se puede ÷ 0";
-
-                estado.innerText =
-                "❌ División entre cero";
-
-                return;
-
-            }
-
-
-            resultado /=
-            numero;
-
-        }
+        return;
 
     }
 
 
-
-    // ==================================================
-    // MOSTRAR RESULTADO
-    // ==================================================
+    // ----------------------------------------------
+    // MOSTRAR
+    // ----------------------------------------------
 
     resultadoPantalla.innerText =
-    "= " + resultado;
-
-
-    estado.innerText =
-    "📡 Enviando al ESP32...";
+        "= " + resultado;
 
 
     console.log(
-    "RESULTADO:",
-    resultado
+        "RESULTADO:",
+        resultado
     );
 
 
-
-    // ==================================================
-    // ENVIAR AL ESP32
-    // ==================================================
+    // ----------------------------------------------
+    // ENVIAR ESP32
+    // ----------------------------------------------
 
     enviarAlESP32(
         texto,
@@ -666,82 +869,89 @@ function calcular(texto) {
 }
 
 
-
 // ==================================================
 // ENVIAR AL ESP32
 // ==================================================
 
 function enviarAlESP32(
-operacion,
-resultado
+    operacion,
+    resultado
 ) {
 
 
+    estado.innerText =
+        "📡 Enviando al ESP32...";
+
+
     const url =
-    "http://" +
-    IP_ESP32 +
-    "/calcular?operacion=" +
-    encodeURIComponent(operacion) +
-    "&resultado=" +
-    encodeURIComponent(resultado);
+        "http://" +
+        IP_ESP32 +
+        "/calcular?operacion=" +
+        encodeURIComponent(
+            operacion
+        ) +
+        "&resultado=" +
+        encodeURIComponent(
+            resultado
+        );
 
 
     console.log(
-    "URL ENVIADA:"
-    );
-
-
-    console.log(
-    url
+        "ENVIANDO:",
+        url
     );
 
 
     fetch(url)
 
     .then(
-    response => {
+        response => {
 
-        if (!response.ok) {
+            if (
+                !response.ok
+            ) {
 
-            throw new Error(
-            "ESP32 respondió con error"
-            );
+                throw new Error(
+                    "Error del ESP32"
+                );
+
+            }
+
+            return response.text();
 
         }
-
-        return response.text();
-
-    })
+    )
 
     .then(
-    data => {
+        data => {
 
-        console.log(
-        "RESPUESTA ESP32:",
-        data
-        );
+            console.log(
+                "ESP32:",
+                data
+            );
 
 
-        estado.innerText =
-        "✅ ESP32 actualizado";
+            estado.innerText =
+                "✅ ESP32 actualizado";
 
-    })
+        }
+    )
 
     .catch(
-    error => {
+        error => {
 
-        console.error(
-        error
-        );
+            console.error(
+                error
+            );
 
 
-        estado.innerText =
-        "❌ No se pudo conectar al ESP32";
+            estado.innerText =
+                "❌ No se pudo conectar al ESP32";
 
-    });
+        }
+    );
 
 }
-
 
 </script>
 
